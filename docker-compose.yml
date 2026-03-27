@@ -1,0 +1,16 @@
+services:
+  port-notification-app:
+    build: .
+    container_name: port-notification-app
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - KAFKA_BROKERS=kafka:29092
+    networks:
+      - portfolio_network
+    restart: always
+
+networks:
+  portfolio_network:
+    external: true

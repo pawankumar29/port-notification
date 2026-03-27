@@ -1,0 +1,19 @@
+{
+  "name": "port-notification",
+  "version": "1.0.0",
+  "description": "Kafka consumer: email, WhatsApp (Twilio), Firebase FCM push",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "firebase-admin": "^13.0.2",
+    "kafkajs": "^2.2.4",
+    "nodemailer": "^6.9.16",
+    "twilio": "^5.4.0",
+    "winston": "^3.17.0"
+  }
+}
