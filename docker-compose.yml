@@ -6,11 +6,13 @@ services:
       - .env
     environment:
       - NODE_ENV=production
-      - KAFKA_BROKERS=kafka:29092
+      - KAFKA_BROKERS=port-kafka:29098
+      - KAFKA_TOPIC=backend-topic,payment_success
+      - WHATSAPP_ENABLED=true
     networks:
-      - portfolio_network
+      - portfolio-network
     restart: always
 
 networks:
-  portfolio_network:
+  portfolio-network:
     external: true

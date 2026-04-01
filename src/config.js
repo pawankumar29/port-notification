@@ -9,7 +9,7 @@ function boolEnv(name, defaultValue = true) {
 function parseBrokers(raw) {
   if (!raw || !String(raw).trim()) {
     // support both host machine and Docker network names by default
-    return ["localhost:9092", "kafka:9092"];
+    return ["localhost:9098", "kafka:9098"];
   }
   return String(raw)
     .split(",")
@@ -31,7 +31,7 @@ export function loadConfig() {
     process.env.KAFKA_CLIENT_ID || "port-notification-service";
   const kafkaGroupId =
     process.env.KAFKA_GROUP_ID || "port-notification-consumer-group";
-  const kafkaTopic = process.env.KAFKA_TOPIC || "backend-topic";
+  const kafkaTopic = (process.env.KAFKA_TOPIC || "backend-topic").split(",").map(t => t.trim());
   const fromBeginning = boolEnv("KAFKA_FROM_BEGINNING", false);
 
   return {

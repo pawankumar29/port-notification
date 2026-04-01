@@ -4,7 +4,7 @@ import { sendEmail } from "./services/email.js";
 import { sendWhatsApp } from "./services/whatsapp.js";
 
 export async function startKafkaConsumer(config) {
-  const { brokers, clientId, groupId, topic, fromBeginning } = config.kafka;
+  const { brokers, clientId, groupId, topic: topics, fromBeginning } = config.kafka;
 
   const kafka = new Kafka({
     clientId,
@@ -22,9 +22,9 @@ export async function startKafkaConsumer(config) {
     `Kafka consumer connected (clientId=${clientId}, groupId=${groupId})`
   );
 
-  await consumer.subscribe({ topic, fromBeginning });
+  await consumer.subscribe({ topics, fromBeginning });
   logger.info(
-    `Subscribed to topic: ${topic} (fromBeginning=${fromBeginning})`
+    `Subscribed to topics: ${topics.join(", ")} (fromBeginning=${fromBeginning})`
   );
 
   await consumer.run({
@@ -34,51 +34,42 @@ export async function startKafkaConsumer(config) {
       const value = message.value?.toString() ?? "";
 
       logger.info(
-        `[${t}][p=${partition}][offset=${offset}] key=${key ?? "(none)"}`
+        `==> [KAFKA] Received from [${t}]: key=${key ?? "(none)"}, offset=${offset}`
       );
-      logger.debug(`Raw payload: ${value.slice(0, 500)}${value.length > 500 ? "…" : ""}`);
-
-// console.log('data:::::::',JSON.stringify(value));
-console.log('data:::::::',value);
-
-
-      const parsed = JSON.parse(value);
-
+      
       try {
+        const parsed = JSON.parse(value);
+        logger.info(`==> [KAFKA] Parsed Payload: ${JSON.stringify(parsed)}`);
 
-        logger.info(parsed);
-                logger.info(JSON.stringify(parsed));
+        let emailSubject = `New Contact Request from ${parsed.name}`;
+        let emailBody = `Name: ${parsed.name}\nEmail: ${parsed.email}\nMessage: ${parsed.message}`;
 
+        if (parsed.event === 'payment_success') {
+          emailSubject = `💰 Payment Successful: ${parsed.paymentId}`;
+          emailBody = `Your payment of ${parsed.amount} was successful!\nPayment ID: ${parsed.paymentId}\nCustomer: ${parsed.customerEmail}`;
+        } else if (parsed.event === 'payment_failed') {
+          emailSubject = `❌ Payment Failed: ${parsed.paymentId}`;
+          emailBody = `Your payment of ${parsed.amount} has failed.\nPayment ID: ${parsed.paymentId}\nCustomer: ${parsed.customerEmail}`;
+        } else if (parsed.event === 'payment_pending') {
+          emailSubject = `⏳ Payment Pending: ${parsed.paymentId}`;
+          emailBody = `Your payment of ${parsed.amount} is currently pending.\nPayment ID: ${parsed.paymentId}\nCustomer: ${parsed.customerEmail}`;
+        }
 
         await sendEmail(config.email, {
-  to: 'pk2027317@gmail.com',
-  subject: `New Contact Request from ${parsed.name}`,
-  text: `
-New Contact Request
+          to: parsed.customerEmail || 'pk2027317@gmail.com',
+          subject: emailSubject,
+          text: emailBody,
+          html: `<h2>Notification</h2><p>${emailBody.replace(/\n/g, '<br>')}</p>`
+        });
 
-Name: ${parsed.name}
-Email: ${parsed.email}
-Budget: ${parsed.budget}
-Message: ${parsed.message}
-  `,
-  html: `
-    <h2>New Contact Request</h2>
-    <p><b>Name:</b> ${parsed.name}</p>
-    <p><b>Email:</b> ${parsed.email}</p>
-    <p><b>Budget:</b> ${parsed.budget}</p>
-    <p><b>Message:</b> ${parsed.message}</p>
-  `
-});
-
-
-  sendWhatsApp(config.whatsapp, {
+        if (parsed.whatsappTo) {
+          await sendWhatsApp(config.whatsapp, {
             to: parsed.whatsappTo,
-            body: parsed.message || parsed.subject,
-          }).catch((err) => {
-            logger.error(`WhatsApp failed: ${err.message}`);
-          })
+            body: emailBody,
+          });
+        }
       } catch (err) {
-        logger.error(`Notification handling error: ${err.message}`);
+        logger.error(`==> [KAFKA] Notification handling error: ${err.message}`);
       }
     },
   });
