@@ -34,12 +34,12 @@ export async function startKafkaConsumer(config) {
       const value = message.value?.toString() ?? "";
 
       logger.info(
-        `==> [KAFKA] Received from [${t}]: key=${key ?? "(none)"}, offset=${offset}`
+        `Kafka message received from [${t}]: key=${key ?? "(none)"}, offset=${offset}`
       );
       
       try {
         const parsed = JSON.parse(value);
-        logger.info(`==> [KAFKA] Parsed Payload: ${JSON.stringify(parsed)}`);
+        logger.info(`Parsed Payload: ${JSON.stringify(parsed)}`);
 
         let emailSubject = `New Contact Request from ${parsed.name}`;
         let emailBody = `Name: ${parsed.name}\nEmail: ${parsed.email}\nMessage: ${parsed.message}`;
@@ -69,7 +69,7 @@ export async function startKafkaConsumer(config) {
           });
         }
       } catch (err) {
-        logger.error(`==> [KAFKA] Notification handling error: ${err.message}`);
+        logger.error(`Notification handling error: ${err.message}`);
       }
     },
   });

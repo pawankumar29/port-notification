@@ -26,7 +26,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  logger.error(`Fatal: ${err.message}`);
-  console.error(err);
+  logger.error(`Fatal Error: ${err.message}`);
   process.exit(1);
 });
