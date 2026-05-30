@@ -3,8 +3,8 @@ import logger from "./logger.js";
 import { startKafkaConsumer } from "./kafka-consumer.js";
 
 async function main() {
-  const config = loadConfig();
-  logger.info("Starting port-notification service…");
+  const config = await loadConfig();
+  logger.info("Starting port-notification service...");
   logger.info(
     `Kafka: brokers=${config.kafka.brokers.join(",")} topic=${config.kafka.topic} groupId=${config.kafka.groupId}`
   );
@@ -12,7 +12,7 @@ async function main() {
   const consumer = await startKafkaConsumer(config);
 
   const shutdown = async (signal) => {
-    logger.info(`Received ${signal}, disconnecting Kafka consumer…`);
+    logger.info(`Received ${signal}, disconnecting Kafka consumer...`);
     try {
       await consumer.disconnect();
     } catch (e) {

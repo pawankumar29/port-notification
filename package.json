@@ -11,6 +11,7 @@
   "dependencies": {
     "dotenv": "^16.4.7",
     "firebase-admin": "^13.0.2",
+    "ioredis": "^5.10.1",
     "kafkajs": "^2.2.4",
     "nodemailer": "^6.9.16",
     "stack-trace": "^1.0.0-pre2",

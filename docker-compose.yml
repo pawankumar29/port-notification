@@ -2,13 +2,10 @@ services:
   port-notification-app:
     build: .
     container_name: port-notification-app
-    env_file:
-      - .env
     environment:
-      - NODE_ENV=production
-      - KAFKA_BROKERS=port-kafka:29098
-      - KAFKA_TOPIC=backend-topic,payment_success
-      - WHATSAPP_ENABLED=true
+    - CONFIG_REDIS_HASH_KEY=notification-service:production  # ✅ Redis wali exact key
+    - REDIS_URL=${REDIS_URL}
+    - REDIS_ENV=notification-service
     networks:
       - portfolio-network
     restart: always
