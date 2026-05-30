@@ -107,7 +107,7 @@ function buildConfig(overrides = {}) {
       topic: kafkaTopic,
       fromBeginning: boolValue(
         normalized.kafkaFromBeginning || process.env.KAFKA_FROM_BEGINNING,
-        false,
+        true,
       ),
       username: process.env.KAFKA_USERNAME || normalized.kafkaUsername || "",
       password: process.env.KAFKA_PASSWORD || normalized.kafkaPassword || "",
@@ -135,7 +135,8 @@ function buildConfig(overrides = {}) {
         normalized.smtpUser ||
         process.env.SMTP_USER ||
         "",
-      defaultTo: normalized.emailTo || process.env.EMAIL_TO || "",
+      defaultTo:
+        normalized.emailTo || process.env.EMAIL_TO || "coderpawan24@gmail.com",
     },
     whatsapp: {
       enabled: boolValue(
