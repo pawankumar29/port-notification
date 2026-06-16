@@ -71,7 +71,9 @@ export async function startKafkaConsumer(config) {
         logger.info(`Parsed Payload: ${JSON.stringify(parsed)}`);
 
         let emailSubject = `New Contact Request from ${parsed.name}`;
-        let emailBody = `Name: ${parsed.name}\nEmail: ${parsed.email}\nMessage: ${parsed.message}`;
+        // let emailBody = `Name: ${parsed.name}\nEmail: ${parsed.email}\nMessage: ${parsed.message}`;
+        let emailBody = `Name: ${parsed.name}\nEmail: ${parsed.email}\nBudget: ${parsed.budget || "Not specified"}\nMessage: ${parsed.message}`;
+
 
         if (parsed.event === "payment_success") {
           emailSubject = `💰 Payment Successful: ${parsed.paymentId}`;
